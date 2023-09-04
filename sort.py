@@ -39,15 +39,17 @@ def sort(path,top_folder):
     for file in files_in_directory:
         file_path=os.path.join(path,file)
         if os.path.isdir(file_path) and file not in ['archives','video','audio','documents','images']:
-            sort(file_path,top_folder)
-            os.rmdir(file_path)
+            empty=sort(file_path,top_folder)
+            if empty:
+                os.rmdir(file_path)
         elif os.path.isfile(file_path) and file not in ['sorted_files.txt']:
             file=file.rsplit('.',1)
             norm_file=normalize(file[0]),file[1]
             if norm_file[1] in ('zip', 'gz', 'tar'):
-                shutil.unpack_archive(file_path,os.path.join(top_folder,extension_to_folder_dict[norm_file[1]]))
-            else:
-                os.rename(file_path,os.path.join(top_folder,extension_to_folder_dict[norm_file[1]])+'\\'+'.'.join(norm_file))
+                os.mkdir(norm_file[0])
+                shutil.unpack_archive(file_path,os.path.join(top_folder,extension_to_folder_dict[norm_file[1]],norm_file[0]))
+            elif extension_to_folder_dict.get(norm_file[1]):
+                os.rename(file_path,os.path.join(top_folder,extension_to_folder_dict[norm_file[1]],'.'.join(norm_file)))
     #creating file with list of all sorted files
     if path==top_folder:
         sorted_files={}
@@ -56,7 +58,8 @@ def sort(path,top_folder):
             sorted_files.update({folder_name:files_in_folder})
         with open(os.path.join(top_folder,'sorted_files.txt'),'w') as f:
             json.dump(sorted_files,f)
-    
+    return not bool(os.listdir(path))
+
 #function normalizing. changes polish letters to english counterparts and changes all symbols other than letters, numbers and _ to _
 def normalize(string):
     trans_table=str.maketrans('ĄąĆćĘęŁłŃńÓóŚśŻżŹź','AaCcEeLlNnOoSsZzZz')
