@@ -6,9 +6,9 @@ import json
 
 #getting path to folder to sort from console or from arguments
 if len(argv)>=2:
-    path=argv[1]
+    main_path=argv[1]
 else:
-    path=input('Input path to folder you wish to sort: ')
+    main_path=input('Input path to folder you wish to sort: ')
 
 #creating dictionaries folder:extention and extention:folder for further use
 folders_to_extensions={
@@ -20,13 +20,13 @@ folders_to_extensions={
 }
 extension_to_folder_dict={}
 for key in folders_to_extensions:
-    if not os.path.isdir(os.path.join(path,key)):
-        os.mkdir(os.path.join(path,key))
+    if not os.path.isdir(os.path.join(main_path,key)):
+        os.mkdir(os.path.join(main_path,key))
     for extension in folders_to_extensions[key]:
         extension_to_folder_dict.update({extension.lower():key})
 
 #main part of the app. path for path of current folder. top_path for path of folder where sorting started(its for recognizing recurency)
-def sort(path,top_folder):
+def sort(path=main_path,top_folder=main_path):
     #getting correct path to existing directory
     while True:
         try:
@@ -68,4 +68,5 @@ def normalize(string):
         normalized_string=re.sub('\W+',lambda match: '_'*len(match.group(0)),normalized_string)
     return normalized_string
 
-sort(path,path)
+if __name__=='__main__':
+    sort(main_path,main_path)
